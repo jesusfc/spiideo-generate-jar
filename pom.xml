@@ -41,6 +41,13 @@
             <version>3.0.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -62,9 +69,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <!--inputSpec>https://docs-public.spiideo.com/openapi.yaml</inputSpec-->
+                            <inputSpec>https://docs-public.spiideo.com/openapi.yaml</inputSpec>
                             <!--inputSpec>https://api.myclub.tv/v3/api-docs/3-Services</inputSpec-->
-                            <inputSpecRootDirectory>C:\WS_Intellij\spiideo-generate-jar\yamlFile</inputSpecRootDirectory>
+                            <!--inputSpecRootDirectory>C:\WS_Intellij\spiideo-generate-jar\yamlFile</inputSpecRootDirectory-->
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiDocumentation>false</generateApiDocumentation>
@@ -75,14 +82,14 @@
                             <generateAliasAsModel>false</generateAliasAsModel>
                             <generateApis>false</generateApis>
                             <modelPackage>com.spiideo.model</modelPackage>
-                            <modelNameSuffix>Dto</modelNameSuffix>
+                            <!--modelNameSuffix>Dto</modelNameSuffix-->
                             <configOptions>
                                 <sourceFolder>src/gen/java/main</sourceFolder>
                                 <useJakartaEe>true</useJakartaEe>
                                 <useBeanValidation>true</useBeanValidation>
                                 <openApiNullable>false</openApiNullable><!-- Do not use JsonNullable in Pojo Class -->
                                 <!--suppress UnresolvedMavenProperty -->
-                                <!--additionalModelTypeAnnotations>@lombok.Builder @lombok.AllArgsConstructor</additionalModelTypeAnnotations -->
+                                <!--additionalModelTypeAnnotations>@lombok.Builder @lombok.AllArgsConstructor</additionalModelTypeAnnotations-->
                             </configOptions>
                         </configuration>
                     </execution>
