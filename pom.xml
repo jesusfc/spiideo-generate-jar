@@ -62,9 +62,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>https://docs-public.spiideo.com/openapi.yaml</inputSpec>
+                            <!--inputSpec>https://docs-public.spiideo.com/openapi.yaml</inputSpec-->
                             <!--inputSpec>https://api.myclub.tv/v3/api-docs/3-Services</inputSpec-->
-                            <!--inputSpecRootDirectory>C:\Workspace\WS_Intellij\spb3-api-first-engineering\openapi\openapi.yaml</inputSpecRootDirectory-->
+                            <inputSpecRootDirectory>C:\WS_Intellij\spiideo-generate-jar\yamlFile</inputSpecRootDirectory>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiDocumentation>false</generateApiDocumentation>

@@ -1,0 +1,89 @@
+---
+servers:
+- url: "http://localhost:8080"
+openapi: "3.0.1"
+paths:
+  /v1/outputs/{outputId}:
+    $ref: "./openapi.yaml#/paths/~1v1~1outputs~1{outputId}"
+  /v1/assets/{id}:
+    $ref: "./openapi.yaml#/paths/~1v1~1assets~1{id}"
+  /v1/games/{gameId}/share:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1share"
+  /v1/games/{gameId}/data-sets/{dataSetId}/match-state-updates:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1data-sets~1{dataSetId}~1match-state-updates"
+  /v1/outputs/{outputId}/download-uri:
+    $ref: "./openapi.yaml#/paths/~1v1~1outputs~1{outputId}~1download-uri"
+  /v1/assets/{id}/upload-url:
+    $ref: "./openapi.yaml#/paths/~1v1~1assets~1{id}~1upload-url"
+  /v1/tags/{id}:
+    $ref: "./openapi.yaml#/paths/~1v1~1tags~1{id}"
+  /v1/data-sets/{id}:
+    $ref: "./openapi.yaml#/paths/~1v1~1data-sets~1{id}"
+  /v1/productions/{id}:
+    $ref: "./openapi.yaml#/paths/~1v1~1productions~1{id}"
+  /v1/contenders/{contenderId}/participants:
+    $ref: "./openapi.yaml#/paths/~1v1~1contenders~1{contenderId}~1participants"
+  /v1/outputs/{outputId}/progress:
+    $ref: "./openapi.yaml#/paths/~1v1~1outputs~1{outputId}~1progress"
+  /v1/games/{gameId}/productions:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1productions"
+  /v1/players/{id}:
+    $ref: "./openapi.yaml#/paths/~1v1~1players~1{id}"
+  /v1/teams/{id}:
+    $ref: "./openapi.yaml#/paths/~1v1~1teams~1{id}"
+  /v1/games/{gameId}/data-sets/{dataSetId}/tags:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1data-sets~1{dataSetId}~1tags"
+  /v1/teams:
+    $ref: "./openapi.yaml#/paths/~1v1~1teams"
+  /v1/contenders/{id}:
+    $ref: "./openapi.yaml#/paths/~1v1~1contenders~1{id}"
+  /v1/games/{gameId}/contenders:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1contenders"
+  /v1/data-sources:
+    $ref: "./openapi.yaml#/paths/~1v1~1data-sources"
+  /v1/games:
+    $ref: "./openapi.yaml#/paths/~1v1~1games"
+  /v1/contenders/{contenderId}:
+    $ref: "./openapi.yaml#/paths/~1v1~1contenders~1{contenderId}"
+  /v1/games/{gameId}/data-sets:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1data-sets"
+  /v1/accounts/{accountId}/storyboards:
+    $ref: "./openapi.yaml#/paths/~1v1~1accounts~1{accountId}~1storyboards"
+  /v1/scenes:
+    $ref: "./openapi.yaml#/paths/~1v1~1scenes"
+  /v1/games/{gameId}/productions/{productionId}/outputs/{outputId}:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1productions~1{productionId}~1outputs~1{outputId}"
+  /v1/output-links/{outputLinkId}/invalidate:
+    $ref: "./openapi.yaml#/paths/~1v1~1output-links~1{outputLinkId}~1invalidate"
+  /v1/games/{gameId}/productions/{productionId}/outputs:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1productions~1{productionId}~1outputs"
+  /v1/games/{id}:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{id}"
+  /v1/accounts:
+    $ref: "./openapi.yaml#/paths/~1v1~1accounts"
+  /v1/accounts/{accountId}/assets:
+    $ref: "./openapi.yaml#/paths/~1v1~1accounts~1{accountId}~1assets"
+  /v1/participants/{participantId}:
+    $ref: "./openapi.yaml#/paths/~1v1~1participants~1{participantId}"
+  /v1/graphic-packages:
+    $ref: "./openapi.yaml#/paths/~1v1~1graphic-packages"
+  /v1/accounts/{accountId}/players:
+    $ref: "./openapi.yaml#/paths/~1v1~1accounts~1{accountId}~1players"
+  /v1/games/{gameId}:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}"
+  /v1/output-links/{outputLinkId}:
+    $ref: "./openapi.yaml#/paths/~1v1~1output-links~1{outputLinkId}"
+  /v1/assets/{assetId}:
+    $ref: "./openapi.yaml#/paths/~1v1~1assets~1{assetId}"
+  /v1/games/{gameId}/match-state-updates:
+    $ref: "./openapi.yaml#/paths/~1v1~1games~1{gameId}~1match-state-updates"
+  /v1/productions/{productionId}/outputs:
+    $ref: "./openapi.yaml#/paths/~1v1~1productions~1{productionId}~1outputs"
+  /v1/assets:
+    $ref: "./openapi.yaml#/paths/~1v1~1assets"
+  /v1/outputs/{outputId}/output-links:
+    $ref: "./openapi.yaml#/paths/~1v1~1outputs~1{outputId}~1output-links"
+info:
+  title: "merged spec"
+  description: "merged spec"
+  version: "1.0.0"

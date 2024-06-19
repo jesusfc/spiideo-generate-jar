@@ -1,0 +1,3972 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: support@spiideo.com
+    name: Spiideo Support
+    url: https://support.spiideo.com
+  description: API for interacting with Spiideo
+  title: Spiideo API
+  version: v1.0
+servers:
+- description: Spiideo API
+  url: "https://api-public.spiideo.com"
+security:
+- OAuth2: []
+paths:
+  /v1/accounts:
+    get:
+      operationId: listAccounts
+      parameters:
+      - description: Type of the account
+        in: query
+        name: type
+        required: true
+        schema:
+          type: string
+          enum:
+          - play
+          - perform
+          - league
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseAccount'
+          description: Paged list of accounts
+        "400":
+          description: Invalid data
+      summary: Gets a paged list of accounts the user has access to
+      tags:
+      - Account
+  /v1/accounts/{accountId}/assets:
+    get:
+      operationId: listAssets
+      parameters:
+      - in: path
+        name: accountId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Filter by creator user
+        in: query
+        name: creatorUserId
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - description: Filter by title search string
+        in: query
+        name: titleSearch
+        required: false
+        schema:
+          type: string
+          maxLength: 2147483647
+          minLength: 3
+      - description: Filter by label
+        in: query
+        name: label
+        required: false
+        schema:
+          type: string
+      - description: Filter by content type
+        in: query
+        name: contentType
+        required: false
+        schema:
+          type: string
+          enum:
+          - image/jpeg
+          - image/png
+          - image/svg+xml
+          - video/mp4
+      - description: Filter by asset processing state
+        in: query
+        name: processingState
+        required: false
+        schema:
+          type: string
+          enum:
+          - none
+          - processing
+          - validation-failed
+          - processing-failed
+          - require-user-validation
+          - complete
+      - description: Filter by modification date
+        in: query
+        name: modifiedAfter
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseAsset'
+          description: One page of assets
+      summary: Returns a paged list of assets
+      tags:
+      - Asset
+  /v1/accounts/{accountId}/players:
+    get:
+      operationId: listPlayers
+      parameters:
+      - in: path
+        name: accountId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Player name search
+        in: query
+        name: nameSearch
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponsePlayer'
+          description: One page of players
+        "400":
+          description: Invalid data
+      summary: Gets a paged list of players
+      tags:
+      - Player
+    post:
+      operationId: createPlayer
+      parameters:
+      - in: path
+        name: accountId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: The new player
+        "400":
+          description: Invalid data
+      summary: Creates a new player
+      tags:
+      - Player
+  /v1/accounts/{accountId}/storyboards:
+    get:
+      operationId: listStoryboards
+      parameters:
+      - in: path
+        name: accountId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: includePublicStoryboards
+        required: false
+        schema:
+          type: boolean
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseStoryboard'
+          description: Page of storyboards
+      summary: List storyboards
+      tags:
+      - Storyboard
+  /v1/assets:
+    post:
+      operationId: createAsset
+      parameters:
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asset'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+          description: The new asset
+        "400":
+          description: Invalid data
+        "403":
+          description: No access
+      summary: Create a new asset
+      tags:
+      - Asset
+  /v1/assets/{assetId}:
+    delete:
+      operationId: deleteAsset
+      parameters:
+      - description: Id of the asset
+        in: path
+        name: assetId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted the asset
+        "404":
+          description: Asset with id does not exist
+      summary: Deletes an asset by id
+      tags:
+      - Asset
+    patch:
+      operationId: updateAsset
+      parameters:
+      - in: path
+        name: assetId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiAssetUpdate'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+          description: Successfully updated the asset
+        "400":
+          description: Invalid data
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+          description: Asset with id does not exist
+      summary: Patch an asset by id
+      tags:
+      - Asset
+  /v1/assets/{id}:
+    get:
+      operationId: getAssetById
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+          description: The asset
+        "404":
+          description: Asset with id does not exist
+      summary: Gets an asset by id
+      tags:
+      - Asset
+  /v1/assets/{id}/upload-url:
+    get:
+      operationId: getAssetUploadUri
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uri
+          description: The upload uri
+        "404":
+          description: Asset with id does not exist
+      summary: Get an presigned upload uri
+      tags:
+      - Asset
+  /v1/contenders/{contenderId}:
+    patch:
+      operationId: updateContender
+      parameters:
+      - in: path
+        name: contenderId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiContenderUpdate'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contender'
+          description: The updated contender
+        "400":
+          description: Invalid data
+      summary: Patch a contender
+      tags:
+      - Contender
+  /v1/contenders/{contenderId}/participants:
+    get:
+      operationId: listParticipants
+      parameters:
+      - description: Id of the contender
+        in: path
+        name: contenderId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseParticipant'
+          description: One page of participants
+        "400":
+          description: Invalid data
+      summary: Gets a paged list of participants
+      tags:
+      - Participant
+    post:
+      operationId: createParticipant
+      parameters:
+      - description: Id of the contender
+        in: path
+        name: contenderId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Participant'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Participant'
+          description: The new participant
+        "400":
+          description: Invalid data
+      summary: Creates a new participant
+      tags:
+      - Participant
+  /v1/contenders/{id}:
+    delete:
+      operationId: deleteContender
+      parameters:
+      - description: Id of the contender to delete
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted a contender
+        "404":
+          description: Contender with id does not exist
+      summary: Deletes a contender by id
+      tags:
+      - Contender
+  /v1/data-sets/{id}:
+    delete:
+      operationId: deleteDataSet
+      parameters:
+      - description: Id of the data set
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted a data set
+        "404":
+          description: Data set with id does not exist
+      summary: Deletes a data set by id
+      tags:
+      - DataSet
+  /v1/data-sources:
+    get:
+      deprecated: true
+      operationId: listDataSources
+      parameters:
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseDataSource'
+          description: One page of data sources
+      summary: Returns a paged list of data sources
+      tags:
+      - DataSource
+  /v1/games:
+    get:
+      operationId: listGames
+      parameters:
+      - description: Include games scheduled after date
+        in: query
+        name: from
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - description: Include games scheduled before date
+        in: query
+        name: to
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - description: Id of the account
+        in: query
+        name: accountId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Id of the scene
+        in: query
+        name: sceneId
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - description: Id of the user
+        in: query
+        name: userId
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - description: Title search string
+        in: query
+        name: titleSearch
+        required: false
+        schema:
+          type: string
+          maxLength: 2147483647
+          minLength: 3
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseGame'
+          description: One page of games
+      summary: Returns a paged list of games
+      tags:
+      - Game
+    post:
+      operationId: createGame
+      parameters:
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+          description: The new game
+        "400":
+          description: Invalid data
+        "403":
+          description: No access
+      summary: Schedules a new game
+      tags:
+      - Game
+  /v1/games/{gameId}:
+    delete:
+      operationId: deleteGame
+      parameters:
+      - description: Id of the game
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted a game
+        "404":
+          description: Game with id does not exist
+      summary: Deletes a game by id
+      tags:
+      - Game
+    patch:
+      operationId: updateGame
+      parameters:
+      - in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiGameUpdate'
+        required: true
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Game'
+          description: Successfully updated a game
+        "400":
+          description: Invalid data
+        "404":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Game'
+          description: Game with id does not exist
+      summary: Patch a game by id
+      tags:
+      - Game
+  /v1/games/{gameId}/contenders:
+    get:
+      operationId: listContenders
+      parameters:
+      - description: Id of the game
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Type of the contender
+        in: query
+        name: type
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - home
+            - away
+            - officials
+          uniqueItems: true
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseContender'
+          description: One page of contender
+        "400":
+          description: Invalid data
+      summary: Gets a paged list of contenders
+      tags:
+      - Contender
+    post:
+      operationId: createContender
+      parameters:
+      - description: Id of the game
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contender'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contender'
+          description: The new contender
+        "400":
+          description: Invalid data
+      summary: Creates a new contender
+      tags:
+      - Contender
+  /v1/games/{gameId}/data-sets:
+    get:
+      operationId: listDataSets
+      parameters:
+      - in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: dataSourceType
+        required: false
+        schema:
+          type: string
+          enum:
+          - user
+          - ocr
+          - external-api
+          - analyst
+          - external-scoreboard
+          - cloud-studio
+          - spiideo-ml-auto
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseDataSet'
+          description: One page of DataSets
+      summary: Returns a paged list of DataSets
+      tags:
+      - DataSet
+    post:
+      operationId: createDataSet
+      parameters:
+      - description: Id of the game
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSet'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSet'
+          description: The new data set
+        "400":
+          description: Invalid data
+        "403":
+          description: No access
+      summary: Creates a new data set
+      tags:
+      - DataSet
+  /v1/games/{gameId}/data-sets/{dataSetId}/match-state-updates:
+    put:
+      operationId: updateStates
+      parameters:
+      - description: Id of the game
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Id of the dataSet
+        in: path
+        name: dataSetId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatesUpdateRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiUpdatedStates'
+          description: The match state was successfully updated
+        "400":
+          description: Invalid data
+        "403":
+          description: No access
+      summary: Updates the match state
+      tags:
+      - MatchState
+  /v1/games/{gameId}/data-sets/{dataSetId}/tags:
+    get:
+      operationId: listTagsInDataSet
+      parameters:
+      - in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: path
+        name: dataSetId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: from
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: to
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: action
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - none
+            - corner
+            - goal
+            - penalty
+            - free_kick
+            - kick_off
+            - shot
+            - shot_on_goal
+            - goal_chance
+            - offside
+            - assist
+            - throw_in
+            - free_hit
+            - penalty_stroke
+            - penalty_shootout
+            - penalty_corner
+            - tip_off
+            - twenty_five_yard_entry
+            - circle_entry
+            - outlet
+            - turnover
+            - press
+            - sixteen_yard
+            - face_off
+            - icing
+            - goalkeeper_punt
+            - goalkeeper_throw
+            - red_card
+            - yellow_card
+            - green_card
+            - pass
+            - cross
+            - duel
+            - foul
+            - start_serve_penalty
+            - stop_serve_penalty
+            - sprint
+            - high_speed_run
+            - medium_speed_run
+            - slow_speed_run
+            - acceleration
+            - deceleration
+            - start_phase
+            - stop_phase
+            - start_active_play
+            - stop_active_play
+            - substitution
+            - possession_changed
+          uniqueItems: true
+      - in: query
+        name: modifiedAfter
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: pagingParameters
+        required: true
+        schema:
+          $ref: '#/components/schemas/PagingParametersUUID'
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseTag'
+          description: One page of tags
+      summary: Returns a paged list of tags
+      tags:
+      - Tag
+    post:
+      operationId: createTag
+      parameters:
+      - in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: path
+        name: dataSetId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json: {}
+          description: The new tag
+        "400":
+          description: Invalid data
+        "403":
+          description: No access
+      summary: Creates a new tag
+      tags:
+      - Tag
+  /v1/games/{gameId}/match-state-updates:
+    get:
+      deprecated: true
+      operationId: listMatchStateUpdates
+      parameters:
+      - in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: from
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: to
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: modifiedAfter
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: dataSetId
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseMatchStateUpdate'
+          description: One page of match state updates
+      summary: Returns a paged list of match state updates
+      tags:
+      - MatchState
+    post:
+      deprecated: true
+      operationId: createMatchStateUpdate
+      parameters:
+      - description: Id of the game
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchStateUpdate'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchStateUpdate'
+          description: The new match state update
+        "400":
+          description: Invalid data
+        "403":
+          description: No access
+      summary: Creates a new match state update
+      tags:
+      - MatchState
+  /v1/games/{gameId}/productions:
+    get:
+      operationId: listProductions
+      parameters:
+      - description: Id of the game to list productions for
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Filter productions by types
+        in: query
+        name: type
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - live
+            - static
+            - low-latency
+          uniqueItems: true
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WrappedRepresentationListProduction'
+          description: List of productions
+        "404":
+          description: Game with id does not exist
+      summary: Gets a list of productions for a game
+      tags:
+      - Production
+    post:
+      operationId: createProduction
+      parameters:
+      - description: Id of the game to create a production for
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/SingleGameProduction'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/SingleGameProduction'
+          description: The new production
+        "400":
+          description: Invalid data
+        "404":
+          description: Game with id does not exist
+      summary: Creates a new production
+      tags:
+      - Production
+  /v1/games/{gameId}/productions/{productionId}/outputs:
+    get:
+      deprecated: true
+      operationId: listOutputsDeprecated
+      parameters:
+      - description: Id of the game the production belong to
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Id of the production to get outputs for
+        in: path
+        name: productionId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseOutput'
+          description: List of outputs
+        "404":
+          description: Production with id does not exist
+      summary: Gets a list of outputs for a production
+      tags:
+      - Output
+    post:
+      deprecated: true
+      operationId: createOutputDeprecated
+      parameters:
+      - description: Id of the game the production belong to
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Id of the production to create the out for
+        in: path
+        name: productionId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/DownloadOutput'
+              - $ref: '#/components/schemas/ExternalHlsOutput'
+              - $ref: '#/components/schemas/PushStreamOutput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/DownloadOutput'
+                - $ref: '#/components/schemas/ExternalHlsOutput'
+                - $ref: '#/components/schemas/PushStreamOutput'
+          description: The new output
+        "400":
+          description: Invalid data
+        "404":
+          description: Production with id does not exist
+      summary: Creates a new output
+      tags:
+      - Output
+  /v1/games/{gameId}/productions/{productionId}/outputs/{outputId}:
+    delete:
+      deprecated: true
+      operationId: deleteOutputDeprecated
+      parameters:
+      - description: Id of the game the production belong to
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Id of the production the output belong to
+        in: path
+        name: productionId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Id of the output to delete
+        in: path
+        name: outputId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted the output
+        "404":
+          description: Production or output with corresponding id does not exist
+      summary: Deletes an output
+      tags:
+      - Output
+  /v1/games/{gameId}/share:
+    post:
+      operationId: shareGame
+      parameters:
+      - description: Id of the game
+        in: path
+        name: gameId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareGameRequest'
+        required: true
+      responses:
+        "200":
+          description: Successfully shared game with account
+        "400":
+          description: Invalid data
+        "404":
+          description: Account or Game does not exist
+      summary: Share game
+      tags:
+      - Game
+  /v1/games/{id}:
+    get:
+      operationId: getGameById
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+          description: The game
+        "404":
+          description: Game with id does not exist
+      summary: Gets a game by id
+      tags:
+      - Game
+  /v1/graphic-packages:
+    get:
+      operationId: listGraphicPackages
+      parameters:
+      - in: query
+        name: accountId
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: nameSearch
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: sport
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - american_football
+            - badminton
+            - bandy
+            - baseball
+            - basketball
+            - boxing
+            - field_hockey
+            - figure_skating
+            - floorball
+            - football
+            - futsal
+            - gaelic_football
+            - gym
+            - handball
+            - ice_hockey
+            - kabaddi
+            - lacrosse
+            - netball
+            - other
+            - rugby
+            - squash
+            - swimming
+            - tennis
+            - volleyball
+            - water_polo
+            - wrestling
+          uniqueItems: true
+      - in: query
+        name: graphicPackageType
+        required: false
+        schema:
+          type: string
+          enum:
+          - html
+          - svg
+      - in: query
+        name: includePublicGraphicPackages
+        required: false
+        schema:
+          type: boolean
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseGraphicPackage'
+          description: Page of graphic-packages
+      summary: List graphic-packages
+      tags:
+      - GraphicPackage
+  /v1/output-links/{outputLinkId}:
+    get:
+      operationId: getOutputLink
+      parameters:
+      - description: The id of the output link
+        in: path
+        name: outputLinkId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiOutputLink'
+          description: The output link
+        "404":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiOutputLink'
+          description: Output link not found
+      summary: Get output link by id
+      tags:
+      - OutputLink
+  /v1/output-links/{outputLinkId}/invalidate:
+    put:
+      operationId: invalidateOutputLink
+      parameters:
+      - description: The id of the output link
+        in: path
+        name: outputLinkId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiOutputLink'
+          description: The output link
+        "400":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiOutputLink'
+          description: Output link already invalidated
+        "404":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiOutputLink'
+          description: Output link not found
+      summary: Invalidate output link
+      tags:
+      - OutputLink
+  /v1/outputs/{outputId}:
+    delete:
+      operationId: deleteOutput
+      parameters:
+      - description: Id of the output to delete
+        in: path
+        name: outputId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted the output
+        "404":
+          description: Production or output with corresponding id does not exist
+      summary: Deletes an output
+      tags:
+      - Output
+  /v1/outputs/{outputId}/download-uri:
+    get:
+      operationId: getOutputDownloadUri
+      parameters:
+      - description: Id of the output
+        in: path
+        name: outputId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uri
+          description: The download uri
+        "404":
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uri
+          description: Output with id does not exist or is not of type 'download'
+      summary: Gets a download uri for an output of type 'download'
+      tags:
+      - Output
+  /v1/outputs/{outputId}/output-links:
+    get:
+      operationId: listApiOutputLinks
+      parameters:
+      - description: Id of the output the links belong to
+        in: path
+        name: outputId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: If the list should include expired output links
+        in: query
+        name: includeExpired
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseApiOutputLink'
+          description: List of output links
+        "404":
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseApiOutputLink'
+          description: Output not found
+      summary: List output links
+      tags:
+      - OutputLink
+    post:
+      operationId: createOutputLink
+      parameters:
+      - description: Id of the output the link belongs to
+        in: path
+        name: outputId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiOutputLink'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiOutputLink'
+          description: Created output link
+        "400":
+          description: Invalid data
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiOutputLink'
+          description: Output not found
+      summary: Create output link
+      tags:
+      - OutputLink
+  /v1/outputs/{outputId}/progress:
+    get:
+      operationId: getOutputProgress
+      parameters:
+      - description: Id of the output
+        in: path
+        name: outputId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+          description: The current processing progress
+        "404":
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+          description: Output with id does not exist or is not of type 'download'
+      summary: "Gets the processing progress [0-100] for an output of type 'download'"
+      tags:
+      - Output
+  /v1/participants/{participantId}:
+    delete:
+      operationId: deleteParticipant
+      parameters:
+      - description: Id of the participant to delete
+        in: path
+        name: participantId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted a participant
+        "404":
+          description: Participant with id does not exist
+      summary: Deletes a participant by id
+      tags:
+      - Participant
+    get:
+      operationId: getParticipantById
+      parameters:
+      - description: Id of the participant to get
+        in: path
+        name: participantId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Participant'
+          description: Successfully fetched a participant
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Participant'
+          description: Participant with id does not exist
+      summary: Gets a participant by id
+      tags:
+      - Participant
+  /v1/players/{id}:
+    delete:
+      operationId: deletePlayer
+      parameters:
+      - description: Id of the player
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted the player
+        "404":
+          description: Player with id does not exist
+      summary: Deletes a player by id
+      tags:
+      - Player
+    get:
+      operationId: getPlayerById
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: The player
+        "404":
+          description: Player with id does not exist
+      summary: Gets a player by id
+      tags:
+      - Player
+  /v1/productions/{id}:
+    get:
+      operationId: getProduction
+      parameters:
+      - description: Id of the production
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Production'
+          description: The production
+        "404":
+          description: The production with id does not exist
+      summary: Gets a production
+      tags:
+      - Production
+    patch:
+      operationId: updateProduction
+      parameters:
+      - description: Id of the production
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BeanUpdateProduction'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Production'
+          description: The updated production
+        "404":
+          description: The production with id does not exist
+      summary: Updates a production
+      tags:
+      - Production
+  /v1/productions/{productionId}/outputs:
+    get:
+      operationId: listOutputs
+      parameters:
+      - description: Id of the production to get outputs for
+        in: path
+        name: productionId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseOutput'
+          description: List of outputs
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseOutput'
+          description: Production with id does not exist
+      summary: Gets a list of outputs for a production
+      tags:
+      - Output
+    post:
+      operationId: createOutput
+      parameters:
+      - description: Id of the production to create the out for
+        in: path
+        name: productionId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/DownloadOutput'
+              - $ref: '#/components/schemas/ExternalHlsOutput'
+              - $ref: '#/components/schemas/PushStreamOutput'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/DownloadOutput'
+                - $ref: '#/components/schemas/ExternalHlsOutput'
+                - $ref: '#/components/schemas/PushStreamOutput'
+          description: The new output
+        "400":
+          description: Invalid data
+        "404":
+          description: Production with id does not exist
+      summary: Creates a new output
+      tags:
+      - Output
+  /v1/scenes:
+    get:
+      operationId: listScenes
+      parameters:
+      - description: Id of the account to list scenes for
+        in: query
+        name: accountId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Scene name search string
+        in: query
+        name: nameSearch
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseScene'
+          description: Paged list of scenes
+      summary: Gets a paged list of scenes
+      tags:
+      - Scene
+  /v1/tags/{id}:
+    delete:
+      operationId: deleteTag
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted the tag
+        "404":
+          description: Tag with id does not exist
+      summary: Deletes a tag
+      tags:
+      - Tag
+  /v1/teams:
+    get:
+      operationId: listTeams
+      parameters:
+      - description: Id of the account
+        in: query
+        name: accountId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Team name search
+        in: query
+        name: nameSearch
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: nextToken
+        required: false
+        schema:
+          type: string
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPagedResponseTeam'
+          description: One page of teams
+        "400":
+          description: Invalid data
+      summary: Gets a paged list of teams
+      tags:
+      - Team
+    post:
+      operationId: createTeam
+      parameters:
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+          description: The new team
+        "400":
+          description: Invalid data
+      summary: Creates a new team
+      tags:
+      - Team
+  /v1/teams/{id}:
+    delete:
+      operationId: deleteTeam
+      parameters:
+      - description: Id of the team to delete
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "204":
+          description: Successfully deleted a team
+        "404":
+          description: Team with id does not exist
+      summary: Deletes a team by id
+      tags:
+      - Team
+    get:
+      operationId: getTeamById
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - description: Spiideo User ID
+        in: header
+        name: X-Spiideo-Api-User
+        required: true
+        schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+          description: The team
+        "404":
+          description: Team with id does not exist
+      summary: Gets a team by id
+      tags:
+      - Team
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - play
+          - perform
+          - league
+      title: Account
+    ApiAssetUpdate:
+      type: object
+      properties:
+        labels:
+          $ref: '#/components/schemas/FieldUpdateSetString'
+        title:
+          $ref: '#/components/schemas/FieldUpdateString'
+    ApiContenderStateUpdate:
+      type: object
+      properties:
+        passedScores:
+          $ref: '#/components/schemas/FieldUpdateListPassedScore'
+        score:
+          $ref: '#/components/schemas/FieldUpdateInteger'
+        subScore:
+          $ref: '#/components/schemas/FieldUpdateInteger'
+        timestamp:
+          $ref: '#/components/schemas/FieldUpdateOffsetDateTime'
+    ApiContenderUpdate:
+      type: object
+      properties:
+        gameId:
+          $ref: '#/components/schemas/FieldUpdateUUID'
+        jerseyColors:
+          $ref: '#/components/schemas/FieldUpdateListColor'
+        shortName:
+          $ref: '#/components/schemas/FieldUpdateString'
+        teamName:
+          $ref: '#/components/schemas/FieldUpdateString'
+    ApiGameUpdate:
+      type: object
+      properties:
+        awayTeamId:
+          $ref: '#/components/schemas/FieldUpdateUUID'
+        description:
+          $ref: '#/components/schemas/FieldUpdateString'
+        eventStartTime:
+          $ref: '#/components/schemas/FieldUpdateOffsetDateTime'
+        homeTeamId:
+          $ref: '#/components/schemas/FieldUpdateUUID'
+        sceneId:
+          $ref: '#/components/schemas/FieldUpdateUUID'
+        scheduledStartTime:
+          $ref: '#/components/schemas/FieldUpdateOffsetDateTime'
+        scheduledStopTime:
+          $ref: '#/components/schemas/FieldUpdateOffsetDateTime'
+        sport:
+          $ref: '#/components/schemas/FieldUpdateSport'
+        title:
+          $ref: '#/components/schemas/FieldUpdateString'
+    ApiMatchStateUpdate:
+      type: object
+      properties:
+        matchClock:
+          $ref: '#/components/schemas/FieldUpdateMatchClock'
+        phase:
+          $ref: '#/components/schemas/FieldUpdatePhase'
+    ApiOutputLink:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        maxUses:
+          type: integer
+          format: int32
+        uri:
+          type: string
+          readOnly: true
+        uses:
+          type: integer
+          format: int32
+          readOnly: true
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+    ApiPagedResponseAccount:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseApiOutputLink:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiOutputLink'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseAsset:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseContender:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contender'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseDataSet:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSet'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseDataSource:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSource'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseGame:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Game'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseGraphicPackage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphicPackage'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseMatchStateUpdate:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MatchStateUpdate'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseOutput:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/DownloadOutput'
+            - $ref: '#/components/schemas/ExternalHlsOutput'
+            - $ref: '#/components/schemas/PushStreamOutput'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseParticipant:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponsePlayer:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Player'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseScene:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Scene'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseStoryboard:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Storyboard'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseTag:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiPagedResponseTeam:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+        nextParameters:
+          $ref: '#/components/schemas/PagingParameters'
+    ApiUpdatedStates:
+      type: object
+      properties:
+        contenderStates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContenderState'
+        matchState:
+          $ref: '#/components/schemas/MatchState'
+    Asset:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        contentType:
+          type: string
+          enum:
+          - image/jpeg
+          - image/png
+          - image/svg+xml
+          - video/mp4
+        creatorUserId:
+          type: string
+          format: uuid
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        labels:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        processingState:
+          type: string
+          enum:
+          - none
+          - processing
+          - validation-failed
+          - processing-failed
+          - require-user-validation
+          - complete
+          readOnly: true
+        timeCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        title:
+          type: string
+      required:
+      - accountId
+      - contentType
+      title: Asset
+    BallAction:
+      type: object
+      properties:
+        distance:
+          type: number
+          format: double
+        endTime:
+          type: string
+          format: date-time
+        fromContender:
+          type: string
+          format: uuid
+        fromParticipant:
+          type: string
+          format: uuid
+        fromPosition:
+          $ref: '#/components/schemas/Point'
+        outcome:
+          type: string
+          enum:
+          - successful
+          - unsuccessful
+          - intercepted
+        packingRate:
+          type: number
+          format: double
+        phase:
+          type: integer
+          format: int32
+        speed:
+          type: number
+          format: double
+        startTime:
+          type: string
+          format: date-time
+        success:
+          type: boolean
+        toContender:
+          type: string
+          format: uuid
+        toParticipant:
+          type: string
+          format: uuid
+        toPosition:
+          $ref: '#/components/schemas/Point'
+        type:
+          type: string
+          enum:
+          - pass
+          - cross
+      required:
+      - type
+    BeanUpdateProduction:
+      type: object
+    CardAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        type:
+          type: string
+          enum:
+          - red_card
+          - yellow_card
+          - green_card
+      required:
+      - type
+    ClockUpdate:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ScoreboardUpdate'
+      - type: object
+        properties:
+          clockReversed:
+            type: boolean
+          currentPhase:
+            type: integer
+            format: int32
+          gameClockTime:
+            type: integer
+            format: int64
+          maxGameClockTime:
+            type: integer
+            format: int64
+          phaseLengths:
+            type: array
+            items:
+              type: integer
+              format: int64
+      required:
+      - type
+    Color:
+      type: object
+      properties:
+        b:
+          type: integer
+          format: int32
+          maximum: 255
+          minimum: 0
+        g:
+          type: integer
+          format: int32
+          maximum: 255
+          minimum: 0
+        r:
+          type: integer
+          format: int32
+          maximum: 255
+          minimum: 0
+      required:
+      - b
+      - g
+      - r
+    Contender:
+      type: object
+      properties:
+        gameId:
+          type: string
+          format: uuid
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        jerseyColors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Color'
+        shortName:
+          type: string
+        teamId:
+          type: string
+          format: uuid
+        teamName:
+          type: string
+        type:
+          type: string
+          enum:
+          - home
+          - away
+          - officials
+      required:
+      - type
+      title: Contender
+    ContenderState:
+      type: object
+      properties:
+        contenderId:
+          type: string
+          format: uuid
+        dataSetId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        passedScores:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassedScore'
+        score:
+          type: integer
+          format: int32
+          minimum: 0
+        subScore:
+          type: integer
+          format: int32
+          minimum: 0
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - contenderId
+      - dataSetId
+      - timestamp
+      title: ContenderState
+    DataSet:
+      type: object
+      properties:
+        dataSourceId:
+          type: string
+          format: uuid
+        gameId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+      required:
+      - dataSourceId
+      - gameId
+      title: DataSet
+    DataSource:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - user
+          - ocr
+          - external-api
+          - analyst
+          - external-scoreboard
+          - cloud-studio
+          - spiideo-ml-auto
+      readOnly: true
+      title: DataSource
+    DownloadOutput:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Output'
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            readOnly: true
+          publishable:
+            type: boolean
+            readOnly: true
+    DuelAction:
+      type: object
+      properties:
+        duelType:
+          type: string
+          enum:
+          - aerial
+          - ground
+        phase:
+          type: integer
+          format: int32
+        successfulContender:
+          type: string
+          format: uuid
+        successfulParticipant:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - duel
+        unsuccessfulContender:
+          type: string
+          format: uuid
+        unsuccessfulParticipant:
+          type: string
+          format: uuid
+    EntryAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        position:
+          $ref: '#/components/schemas/Point'
+        type:
+          type: string
+          enum:
+          - twenty_five_yard_entry
+          - circle_entry
+      required:
+      - type
+    ExternalHlsOutput:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Output'
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            readOnly: true
+    FaceOffAction:
+      type: object
+      properties:
+        phase:
+          type: integer
+          format: int32
+        position:
+          $ref: '#/components/schemas/Point'
+        successfulContender:
+          type: string
+          format: uuid
+        successfulParticipant:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - face_off
+        unsuccessfulContender:
+          type: string
+          format: uuid
+        unsuccessfulParticipant:
+          type: string
+          format: uuid
+    FieldUpdateInteger:
+      type: object
+    FieldUpdateListColor:
+      type: object
+    FieldUpdateListPassedScore:
+      type: object
+    FieldUpdateMatchClock:
+      type: object
+    FieldUpdateOffsetDateTime:
+      type: object
+    FieldUpdatePhase:
+      type: object
+    FieldUpdateSetString:
+      type: object
+    FieldUpdateSport:
+      type: object
+    FieldUpdateString:
+      type: object
+    FieldUpdateUUID:
+      type: object
+    FoulAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        outcome:
+          type: string
+          enum:
+          - penalty
+          - free_kick
+          - offside
+          - red_card
+          - yellow_card
+          - green_card
+          - penalty_2_min
+          - penalty_5_min
+          - penalty_10_min
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        position:
+          $ref: '#/components/schemas/Point'
+        type:
+          type: string
+          enum:
+          - foul
+    Game:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        awayTeamId:
+          type: string
+          format: uuid
+        description:
+          type: string
+        eventStartTime:
+          type: string
+          format: date-time
+        homeTeamId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        sceneId:
+          type: string
+          format: uuid
+        scheduledStartTime:
+          type: string
+          format: date-time
+        scheduledStopTime:
+          type: string
+          format: date-time
+        sport:
+          type: string
+          enum:
+          - american_football
+          - badminton
+          - bandy
+          - baseball
+          - basketball
+          - boxing
+          - field_hockey
+          - figure_skating
+          - floorball
+          - football
+          - futsal
+          - gaelic_football
+          - gym
+          - handball
+          - ice_hockey
+          - kabaddi
+          - lacrosse
+          - netball
+          - other
+          - rugby
+          - squash
+          - swimming
+          - tennis
+          - volleyball
+          - water_polo
+          - wrestling
+        state:
+          type: string
+          enum:
+          - created
+          - scheduled
+          - recording
+          - finished
+          - purged
+          - aborted
+          - eradicated
+          readOnly: true
+        title:
+          type: string
+      required:
+      - accountId
+      - awayTeamId
+      - description
+      - homeTeamId
+      - sceneId
+      - scheduledStartTime
+      - scheduledStopTime
+      - sport
+      - title
+      title: Game
+    GameAction:
+      type: object
+      properties:
+        assistedBy:
+          type: string
+          format: uuid
+        assistedFrom:
+          $ref: '#/components/schemas/Point'
+        blockedAt:
+          $ref: '#/components/schemas/Point'
+        blockedBy:
+          type: string
+          format: uuid
+        contender:
+          type: string
+          format: uuid
+        endTime:
+          type: string
+          format: date-time
+        fromPosition:
+          $ref: '#/components/schemas/Point'
+        onTarget:
+          type: boolean
+        outcome:
+          type: string
+          enum:
+          - saved
+          - blocked
+          - successful
+          - unsuccessful
+          - intercepted
+          - goal
+          - off_target
+        ownGoal:
+          type: boolean
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        shotType:
+          type: string
+          enum:
+          - head
+          - foot
+        startTime:
+          type: string
+          format: date-time
+        targetPosition:
+          $ref: '#/components/schemas/Point'
+        toPosition:
+          $ref: '#/components/schemas/Point'
+        type:
+          type: string
+          enum:
+          - corner
+          - goal
+          - penalty
+          - free_kick
+          - kick_off
+          - shot
+          - shot_on_goal
+          - goal_chance
+          - offside
+          - assist
+          - throw_in
+          - free_hit
+          - penalty_shootout
+          - penalty_stroke
+          - penalty_corner
+          - icing
+      required:
+      - type
+    GoalkeeperAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        fromPosition:
+          $ref: '#/components/schemas/Point'
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        toPosition:
+          $ref: '#/components/schemas/Point'
+        type:
+          type: string
+          enum:
+          - goalkeeper_throw
+          - goalkeeper_punt
+      required:
+      - type
+    GraphicPackage:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        sports:
+          type: array
+          items:
+            type: string
+            enum:
+            - american_football
+            - badminton
+            - bandy
+            - baseball
+            - basketball
+            - boxing
+            - field_hockey
+            - figure_skating
+            - floorball
+            - football
+            - futsal
+            - gaelic_football
+            - gym
+            - handball
+            - ice_hockey
+            - kabaddi
+            - lacrosse
+            - netball
+            - other
+            - rugby
+            - squash
+            - swimming
+            - tennis
+            - volleyball
+            - water_polo
+            - wrestling
+          uniqueItems: true
+        type:
+          type: string
+          enum:
+          - html
+          - svg
+      required:
+      - name
+      - sports
+      - type
+      title: GraphicPackage
+    Jersey:
+      type: object
+      properties:
+        colors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Color'
+          maxItems: 10
+          minItems: 1
+        jerseyType:
+          type: string
+          enum:
+          - home
+          - away
+          - third
+          - fourth
+      required:
+      - colors
+      - jerseyType
+    Label:
+      type: object
+      properties:
+        isCode:
+          type: boolean
+        label:
+          type: string
+      required:
+      - isCode
+      - label
+    MatchClock:
+      type: object
+      properties:
+        matchTime:
+          type: integer
+          format: int64
+          minimum: 0
+        reversed:
+          type: boolean
+        state:
+          type: string
+          enum:
+          - paused
+          - running
+        worldTime:
+          type: string
+          format: date-time
+      required:
+      - matchTime
+      - state
+      - worldTime
+    MatchState:
+      type: object
+      properties:
+        dataSetId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        matchClock:
+          $ref: '#/components/schemas/MatchClock'
+        phase:
+          $ref: '#/components/schemas/Phase'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - dataSetId
+      - timestamp
+      title: MatchState
+    MatchStateUpdate:
+      type: object
+      properties:
+        dataSetId:
+          type: string
+          format: uuid
+        gameId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+        update:
+          $ref: '#/components/schemas/ScoreboardUpdate'
+      required:
+      - dataSetId
+      - gameId
+      - timestamp
+      - update
+      title: MatchStateUpdate
+    MovementAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        distance:
+          type: number
+          format: double
+        endSpeed:
+          type: number
+          format: double
+        endTime:
+          type: string
+          format: date-time
+        fromPosition:
+          $ref: '#/components/schemas/Point'
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        startSpeed:
+          type: number
+          format: double
+        startTime:
+          type: string
+          format: date-time
+        toPosition:
+          $ref: '#/components/schemas/Point'
+        type:
+          type: string
+          enum:
+          - sprint
+          - high_speed_run
+          - medium_speed_run
+          - slow_speed_run
+          - acceleration
+          - deceleration
+      required:
+      - type
+    OutletAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        position:
+          $ref: '#/components/schemas/Point'
+        type:
+          type: string
+          enum:
+          - outlet
+          - press
+          - sixteen_yard
+      required:
+      - type
+    Output:
+      type: object
+      discriminator:
+        propertyName: outputType
+      properties:
+        outputType:
+          type: string
+          enum:
+          - download
+          - push_stream
+          - external_hls
+        productionId:
+          type: string
+          format: uuid
+      title: Output
+    PagingParameters:
+      type: object
+      properties:
+        nextToken:
+          type: string
+        pageSize:
+          type: integer
+          format: int32
+      title: PagingParameters
+    PagingParametersUUID:
+      type: object
+      properties:
+        nextToken:
+          type: string
+        pageSize:
+          type: integer
+          format: int32
+        parameters:
+          type: string
+          format: uuid
+        sortOrder:
+          type: string
+          enum:
+          - asc
+          - desc
+        sortParameter:
+          type: object
+        sortProperty:
+          type: string
+    Participant:
+      type: object
+      properties:
+        contenderId:
+          type: string
+          format: uuid
+          readOnly: true
+        goalkeeper:
+          type: boolean
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        inStartingLineup:
+          type: boolean
+        name:
+          type: string
+        number:
+          type: integer
+          format: int32
+          minimum: 0
+        playerId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - player
+          - coach
+      required:
+      - type
+      title: Participant
+    PassedScore:
+      type: object
+      properties:
+        gamePhaseIndex:
+          type: integer
+          format: int32
+          minimum: 0
+        matchPhaseIndex:
+          type: integer
+          format: int32
+          minimum: 0
+        score:
+          type: integer
+          format: int32
+          minimum: 0
+        subScore:
+          type: integer
+          format: int32
+          minimum: 0
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - score
+    Phase:
+      type: object
+      discriminator:
+        propertyName: type
+      properties:
+        duration:
+          type: integer
+          format: int64
+        gameIndex:
+          type: integer
+          format: int32
+        matchIndex:
+          type: integer
+          format: int32
+        matchSubIndex:
+          type: integer
+          format: int32
+        startTime:
+          type: string
+          format: date-time
+        stopTime:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+          - pre_match
+          - post_match
+          - intermission
+          - ordinary
+          - overtime
+          - penalty-shootout
+          - unknown
+    PhaseUpdate:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ScoreboardUpdate'
+      - type: object
+        properties:
+          currentPhase:
+            type: integer
+            format: int32
+            minimum: 0
+          matchPhase:
+            type: string
+            enum:
+            - pre-game
+            - game-play
+            - intermission
+            - post-game
+      required:
+      - matchPhase
+      - type
+    Player:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        birthdate:
+          type: string
+          format: date
+        firstName:
+          type: string
+        goalkeeper:
+          type: boolean
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        lastName:
+          type: string
+        nationalities:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        number:
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+      - firstName
+      - lastName
+      title: Player
+    Point:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+        "y":
+          type: number
+          format: double
+    PossessionChangedAction:
+      type: object
+      properties:
+        fromContender:
+          type: string
+          format: uuid
+        fromParticipant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        position:
+          $ref: '#/components/schemas/Point'
+        toContender:
+          type: string
+          format: uuid
+        toParticipant:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - possession_changed
+    Production:
+      type: object
+      discriminator:
+        propertyName: productionType
+      properties:
+        gameId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+        metadata:
+          type: object
+          additionalProperties:
+            type: object
+        processingState:
+          type: string
+          enum:
+          - pending
+          - starting
+          - processing
+          - finished
+          - purged
+          - error
+          - deleted
+        productionType:
+          type: string
+          enum:
+          - single_game
+        sponsorIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+    PushStreamOutput:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Output'
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            readOnly: true
+          uri:
+            type: string
+            description: RTMP and SRT URIs supported
+            example: rtmp://example.com/path
+            pattern: ^(?i)(?:rtmps?|srt)://.+
+      required:
+      - uri
+    Scene:
+      type: object
+      properties:
+        description:
+          type: string
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sports:
+          type: array
+          items:
+            type: string
+            enum:
+            - american_football
+            - badminton
+            - bandy
+            - baseball
+            - basketball
+            - boxing
+            - field_hockey
+            - figure_skating
+            - floorball
+            - football
+            - futsal
+            - gaelic_football
+            - gym
+            - handball
+            - ice_hockey
+            - kabaddi
+            - lacrosse
+            - netball
+            - other
+            - rugby
+            - squash
+            - swimming
+            - tennis
+            - volleyball
+            - water_polo
+            - wrestling
+          uniqueItems: true
+      title: Scene
+    ScoreUpdate:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/ScoreboardUpdate'
+      - type: object
+        properties:
+          awayScore:
+            type: integer
+            format: int32
+          homeScore:
+            type: integer
+            format: int32
+          subScores:
+            type: array
+            items:
+              $ref: '#/components/schemas/SubScore'
+      required:
+      - type
+    ScoreboardUpdate:
+      type: object
+      discriminator:
+        propertyName: type
+      oneOf:
+      - $ref: '#/components/schemas/ClockUpdate'
+      - $ref: '#/components/schemas/ScoreUpdate'
+      - $ref: '#/components/schemas/PhaseUpdate'
+      properties:
+        type:
+          type: string
+          enum:
+          - start_clock
+          - stop_clock
+          - score
+          - phase
+      title: Update
+    ShareGameRequest:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+      required:
+      - accountId
+    SimpleAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - none
+      required:
+      - type
+    SingleGameProduction:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Production'
+      - type: object
+        properties:
+          cloudStudioUrl:
+            type: string
+            readOnly: true
+          gameId:
+            type: string
+            format: uuid
+            readOnly: true
+          graphicPackageId:
+            type: string
+            format: uuid
+          highlightsSource:
+            type: boolean
+          id:
+            type: string
+            format: uuid
+            readOnly: true
+          placeholderValues:
+            type: object
+            additionalProperties:
+              type: object
+          processingState:
+            type: string
+            enum:
+            - pending
+            - starting
+            - processing
+            - finished
+            - purged
+            - error
+            - deleted
+            readOnly: true
+          storyboardId:
+            type: string
+            format: uuid
+          title:
+            type: string
+          type:
+            type: string
+            enum:
+            - live
+            - static
+            - low-latency
+      required:
+      - productionType
+    StartActivePlayAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - start_active_play
+    StartPhaseAction:
+      type: object
+      properties:
+        homeContenderIsLeft:
+          type: boolean
+        phase:
+          type: integer
+          format: int32
+        phaseType:
+          type: string
+          enum:
+          - pre_match
+          - post_match
+          - intermission
+          - ordinary
+          - overtime
+          - penalty-shootout
+          - unknown
+        type:
+          type: string
+          enum:
+          - start_phase
+    StartServePenaltyAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        duration:
+          type: integer
+          format: int64
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        type:
+          type: string
+          enum:
+          - start_serve_penalty
+    StatesUpdateRequest:
+      type: object
+      properties:
+        contenderStateUpdates:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ApiContenderStateUpdate'
+        matchStateUpdate:
+          $ref: '#/components/schemas/ApiMatchStateUpdate'
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - timestamp
+      title: StatesUpdateRequest
+    StopActivePlayAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - stop_active_play
+    StopPhaseAction:
+      type: object
+      properties:
+        phase:
+          type: integer
+          format: int32
+        type:
+          type: string
+          enum:
+          - stop_phase
+    StopServePenaltyAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        type:
+          type: string
+          enum:
+          - stop_serve_penalty
+    Storyboard:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        description:
+          type: string
+          maxLength: 200
+          minLength: 2
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 50
+          minLength: 2
+      required:
+      - description
+      - title
+      title: Storyboard
+    SubScore:
+      type: object
+      properties:
+        awayScore:
+          type: integer
+          format: int32
+        detailedAwayScore:
+          type: integer
+          format: int32
+        detailedHomeScore:
+          type: integer
+          format: int32
+        homeScore:
+          type: integer
+          format: int32
+    SubstitutionAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        fromParticipant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        toParticipant:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+          - substitution
+    Tag:
+      type: object
+      properties:
+        action:
+          oneOf:
+          - $ref: '#/components/schemas/BallAction'
+          - $ref: '#/components/schemas/CardAction'
+          - $ref: '#/components/schemas/DuelAction'
+          - $ref: '#/components/schemas/EntryAction'
+          - $ref: '#/components/schemas/FaceOffAction'
+          - $ref: '#/components/schemas/FoulAction'
+          - $ref: '#/components/schemas/GameAction'
+          - $ref: '#/components/schemas/GoalkeeperAction'
+          - $ref: '#/components/schemas/MovementAction'
+          - $ref: '#/components/schemas/OutletAction'
+          - $ref: '#/components/schemas/PossessionChangedAction'
+          - $ref: '#/components/schemas/SimpleAction'
+          - $ref: '#/components/schemas/StartActivePlayAction'
+          - $ref: '#/components/schemas/StartPhaseAction'
+          - $ref: '#/components/schemas/StartServePenaltyAction'
+          - $ref: '#/components/schemas/StopActivePlayAction'
+          - $ref: '#/components/schemas/StopPhaseAction'
+          - $ref: '#/components/schemas/StopServePenaltyAction'
+          - $ref: '#/components/schemas/SubstitutionAction'
+          - $ref: '#/components/schemas/TipOffAction'
+          - $ref: '#/components/schemas/TurnoverAction'
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Label'
+        postRoll:
+          type: integer
+          format: int64
+        preRoll:
+          type: integer
+          format: int64
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - labels
+      - timestamp
+      title: Tag
+    TagAction:
+      type: object
+      discriminator:
+        propertyName: type
+      properties:
+        type:
+          type: string
+          enum:
+          - none
+          - corner
+          - goal
+          - penalty
+          - free_kick
+          - kick_off
+          - shot
+          - shot_on_goal
+          - goal_chance
+          - offside
+          - assist
+          - throw_in
+          - free_hit
+          - penalty_stroke
+          - penalty_shootout
+          - penalty_corner
+          - tip_off
+          - twenty_five_yard_entry
+          - circle_entry
+          - outlet
+          - turnover
+          - press
+          - sixteen_yard
+          - face_off
+          - icing
+          - goalkeeper_punt
+          - goalkeeper_throw
+          - red_card
+          - yellow_card
+          - green_card
+          - pass
+          - cross
+          - duel
+          - foul
+          - start_serve_penalty
+          - stop_serve_penalty
+          - sprint
+          - high_speed_run
+          - medium_speed_run
+          - slow_speed_run
+          - acceleration
+          - deceleration
+          - start_phase
+          - stop_phase
+          - start_active_play
+          - stop_active_play
+          - substitution
+          - possession_changed
+    Team:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        jerseys:
+          type: array
+          items:
+            $ref: '#/components/schemas/Jersey'
+          uniqueItems: true
+        logoAssetId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        shortName:
+          type: string
+          maxLength: 5
+          minLength: 2
+      required:
+      - accountId
+      - name
+      - shortName
+      title: Team
+    TipOffAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        type:
+          type: string
+          enum:
+          - tip_off
+    TurnoverAction:
+      type: object
+      properties:
+        contender:
+          type: string
+          format: uuid
+        participant:
+          type: string
+          format: uuid
+        phase:
+          type: integer
+          format: int32
+        position:
+          $ref: '#/components/schemas/Point'
+        type:
+          type: string
+          enum:
+          - turnover
+    WrappedRepresentationListProduction:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/SingleGameProduction'
+  securitySchemes:
+    OAuth2:
+      flows:
+        clientCredentials:
+          scopes: {}
+          tokenUrl: "https://auth-play.spiideo.net/oauth2/token"
+      type: oauth2
